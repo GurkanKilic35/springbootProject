@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Filmler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card-img-top {
+            width: 100%;
+            height: 300px; /* Adjusted for better visual consistency */
+            object-fit: cover;
+        }
+        .card-body {
+             display: flex;
+             flex-direction: column;
+        }
+         .card-footer {
+             margin-top: auto; /* Pushes the footer to the bottom */
+         }
+         /* Style for no image placeholder */
+         .card-img-top[alt="Placeholder"] {
+             object-fit: contain; /* Or 'fill' if you prefer stretching */
+             background-color: #e9ecef; /* Light grey background */
+         }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container">
+        <a class="navbar-brand" href="/home">Film & Dizi Puanlama</a>
+        <div th:if="${userRole == 'ADMIN'}">
+            <a href="/movies/add" class="btn btn-success">Yeni Film Ekle</a>
+        </div>
+        <div class="navbar-nav ms-auto"> <span class="navbar-text me-3">Hoşgeldiniz, <span th:text="${username}">Guest</span></span>
+            <div th:if="${userId != null}">
+                <a class="btn btn-outline-light" href="/logout">Çıkış Yap</a>
+            </div>
+            <div th:unless="${userId != null}">
+                <a class="btn btn-outline-light" href="/login">Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="mb-4 text-center">Diziler</h1>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        <div th:if="${movie.type == T(com.example.webproje.enums.Type).SERIES}" class="col" th:each="movie : ${movies}">
+            <div class="card h-100">
+                <div>
+                    <img th:if="${movie.imageBase64}" th:src="'data:image/png;base64,' + ${movie.imageBase64}" class="card-img-top" th:alt="${movie.title}"/>
+                    <img th:unless="${movie.imageBase64}"
+                         src="https://via.placeholder.com/300x450?text=No+Image"
+                         class="card-img-top" alt="Placeholder">
+                </div>
+
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${movie.title}"></h5>
+                    <p class="card-text" th:text="${#strings.abbreviate(movie.description, 150)}"></p> <p class="card-text"><strong>Tür:</strong> <span th:text="${movie.genre}"></span></p>
+                    <p class="card-text"><strong>Çıkış Tarihi:</strong> <span th:text="${movie.releaseDate}"></span></p>
+                    <p class="card-text"><strong>Ortalama Puan:</strong> <span th:text="${#numbers.formatDecimal(movie.avgRate, 0, 2)}"></span></p>
+
+                    <div th:if="${userId != null}">
+                        <div th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
+                            <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
+                                <div th:if="${userRate != null}">
+                                    <p class="card-text"><strong>Puanınız:</strong> <span th:text="${userRate.score}"></span></p>
+                                    <p class="card-text"><strong>Yorumunuz:</strong> <span th:text="${userRate.comment}"></span></p>
+                                </div>
+                                <div th:unless="${userRate != null || userRole == 'ADMIN'}">
+                                    <p class="card-text"><em>Henüz bu diziyi puanlamadınız.</em></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:unless="${userId != null}"> <p class="card-text"><em>Puanınızı görmek için giriş yapın.</em></p>
+                    </div>
+                    <div class="mt-auto"></div>
+                </div>
+
+                <div class="card-footer text-center">
+                    <div th:if="${userRole == 'ADMIN'}">
+                        <a th:href="@{/movies/update/{id}(id=${movie.id})}" class="btn btn-info btn-sm">Güncelle</a>
+                        <a th:href="@{/movies/delete/{id}(id=${movie.id})}" class="btn btn-danger btn-sm">Sil</a>
+                    </div>
+                    <div th:if="${userRole == 'USER'}">
+                        <div th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
+                            <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
+                                <a th:if="${userRate == null}" th:href="@{/movie/rate/{id}(id=${movie.id})}" class="btn btn-warning btn-sm">Puanla</a>
+                                <a th:if="${userRate != null}" th:href="@{/movie/rate/update/{id}(id=${userRate.id})}" class="btn btn-info btn-sm">Puanı Güncelle</a>
+                                <a th:if="${userRate != null}" th:href="@{/movie/rate/delete/{id}(id=${userRate.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Puanı silmek istediğinize emin misiniz?')">Puanı Sil</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
