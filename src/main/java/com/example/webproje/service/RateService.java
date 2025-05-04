@@ -1,13 +1,11 @@
 package com.example.webproje.service;
 
-import com.example.webproje.dto.MovieDTO;
 import com.example.webproje.dto.RateDTO;
 import com.example.webproje.entity.RateEntity;
-import com.example.webproje.mapper.MovieMapper;
 import com.example.webproje.mapper.RateMapper;
 import com.example.webproje.repository.RateRepo;
 import com.example.webproje.service.interfaces.IRate;
-import jakarta.transaction.Transactional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;

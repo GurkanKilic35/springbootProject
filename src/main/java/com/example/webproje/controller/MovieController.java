@@ -34,6 +34,7 @@ public class MovieController {
                 .orElseThrow(() -> new RuntimeException("Film bulunamadı"));
 
         UserEntity user = userService.findByUsername(userDetails.getUsername());
+        model.addAttribute("userId", user.getId());
         model.addAttribute("username", user.getUsername());
 
         RateDTO rateDTO = new RateDTO();
@@ -54,7 +55,6 @@ public class MovieController {
         rate.setMovie(movie);
         rate.setUser(user);
 
-        // Puanı ekle
         rateService.addRate(rate);
 
         if(movie.getType() == Type.MOVIE){
@@ -65,9 +65,14 @@ public class MovieController {
     }
 
     @GetMapping("/rate/update/{id}")
-    public String getRate(@PathVariable Long id, Model model) {
+    public String getRate(@PathVariable Long id, Model model, @AuthenticationPrincipal UserDetails userDetails) {
         RateDTO rateDTO = rateService.findRateById(id)
                 .orElseThrow(() -> new RuntimeException("Puan bulunamadı"));
+
+        UserEntity user = userService.findByUsername(userDetails.getUsername());
+        model.addAttribute("userId", user.getId());
+        model.addAttribute("username", user.getUsername());
+
         model.addAttribute("rate", rateDTO);
         model.addAttribute("movie", rateDTO.getMovie());
         return "update-rate";

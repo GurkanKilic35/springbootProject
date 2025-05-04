@@ -27,7 +27,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**", "/register", "/login").permitAll() // Favicon isteğini hariç tut
+                        .requestMatchers("/css/**", "/js/**", "/register", "/login").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

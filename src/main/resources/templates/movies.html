@@ -2,102 +2,300 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Filmler</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmler - Film & Dizi Puanlama Sistemi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+
+        .main-content {
+            flex-grow: 1;
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .page-title {
+            color: #343a40;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+        }
+
+        .movie-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+             overflow: hidden;
+        }
+
+        .movie-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .card-img-container {
+             position: relative;
+             width: 100%;
+             height: 350px;
+             background-color: #e9ecef;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+        }
+
         .card-img-top {
             width: 100%;
-            height: 300px; /* Adjusted for better visual consistency */
+            height: 100%;
             object-fit: cover;
         }
+
+         .placeholder-icon {
+             font-size: 5rem;
+             color: #adb5bd;
+         }
+
+
         .card-body {
-             display: flex;
-             flex-direction: column;
+            display: flex;
+            flex-direction: column;
+            padding: 1.25rem;
+            flex-grow: 1;
         }
-         .card-footer {
-             margin-top: auto; /* Pushes the footer to the bottom */
+
+         .card-title {
+             font-weight: 600;
+             margin-bottom: 0.75rem;
+             color: #212529;
          }
-         /* Style for no image placeholder */
-         .card-img-top[alt="Placeholder"] {
-             object-fit: contain; /* Or 'fill' if you prefer stretching */
-             background-color: #e9ecef; /* Light grey background */
+
+         .card-text {
+             font-size: 0.9rem;
+             color: #6c757d;
+             margin-bottom: 0.5rem;
          }
+         .card-text strong {
+             color: #495057;
+         }
+
+         .rating-section {
+              margin-top: 1rem;
+              padding-top: 1rem;
+              border-top: 1px solid #eee;
+         }
+
+         .user-rating {
+             background-color: #eef7ff;
+             border-left: 4px solid #0d6efd;
+             padding: 0.75rem;
+             border-radius: 5px;
+             margin-top: 0.5rem;
+         }
+          .user-rating p {
+               margin-bottom: 0.25rem;
+           }
+
+         .avg-rating .badge {
+              font-size: 0.9rem;
+         }
+
+
+        .card-footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #eee;
+            padding: 0.75rem 1.25rem;
+            text-align: center;
+        }
+         .card-footer .btn {
+             margin: 0.2rem;
+         }
+
+
+        .footer {
+            background-color: #212529;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+        .search-form-container {
+            margin-bottom: 2rem;
+        }
     </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="/home">Film & Dizi Puanlama</a>
-        <div th:if="${userRole == 'ADMIN'}">
-            <a href="/movies/add" class="btn btn-success">Yeni Film Ekle</a>
-        </div>
-        <div class="navbar-nav ms-auto"> <span class="navbar-text me-3">Hoşgeldiniz, <span th:text="${username}">Guest</span></span>
-            <div th:if="${userId != null}">
-                <a class="btn btn-outline-light" href="/logout">Çıkış Yap</a>
+        <a class="navbar-brand" href="/home">
+            <i class="fas fa-film me-2"></i>Film & Dizi Puanlama
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav me-auto" th:if="${userRole == 'ADMIN'}">
+                <a href="/movies/add" class="btn btn-success btn-sm ms-lg-3 mt-2 mt-lg-0">
+                    <i class="fas fa-plus me-1"></i>Yeni Film Ekle
+                </a>
             </div>
-            <div th:unless="${userId != null}">
-                <a class="btn btn-outline-light" href="/login">Giriş Yap</a>
+
+            <div class="navbar-nav ms-auto align-items-center">
+                 <span th:if="${username}" class="navbar-text me-3">
+                    Hoşgeldiniz, <span th:text="${username}">Kullanıcı</span>!
+                </span>
+                <span th:unless="${username}" class="navbar-text me-3">
+                    Hoşgeldiniz, Misafir!
+                </span>
+
+                <div th:if="${userId != null}">
+                    <a class="btn btn-outline-light btn-sm" href="/logout">
+                        <i class="fas fa-sign-out-alt me-1"></i> Çıkış Yap
+                    </a>
+                </div>
+                <div th:unless="${userId != null}" class="d-flex"> <a class="btn btn-outline-light btn-sm me-2" href="/login">
+                    <i class="fas fa-sign-in-alt me-1"></i> Giriş Yap
+                </a>
+                    <a class="btn btn-warning btn-sm" href="/register">
+                        <i class="fas fa-user-plus me-1"></i> Kayıt Ol
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
-<div class="container">
-    <h1 class="mb-4 text-center">Filmler</h1>
+<div class="container main-content">
+    <h1 class="mb-4 text-center page-title">Filmler</h1>
 
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        <div th:if="${movie.type == T(com.example.webproje.enums.Type).MOVIE}" class="col" th:each="movie : ${movies}">
-            <div class="card h-100">
-                <div>
-                    <img th:if="${movie.imageBase64}" th:src="'data:image/png;base64,' + ${movie.imageBase64}" class="card-img-top" th:alt="${movie.title}"/>
-                    <img th:unless="${movie.imageBase64}"
-                         src="https://via.placeholder.com/300x450?text=No+Image"
-                         class="card-img-top" alt="Placeholder">
+    <div class="row justify-content-center search-form-container">
+        <div class="col-md-10 col-lg-8">
+            <form th:action="@{/movies}" method="get" class="p-3 bg-light border rounded">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md">
+                        <label for="titleSearch" class="form-label">Film Adına Göre Ara</label>
+                        <input type="text" id="titleSearch" name="titleSearch" class="form-control"
+                               placeholder="Film adı..."
+                               th:value="${titleSearchQuery}" aria-label="Film adına göre ara">
+                    </div>
+                    <div class="col-md">
+                        <label for="genreSearch" class="form-label">Türe Göre Ara</label>
+                        <input type="text" id="genreSearch" name="genreSearch" class="form-control"
+                               placeholder="Film türü..."
+                               th:value="${genreSearchQuery}" aria-label="Türe göre ara">
+                    </div>
+                    <div class="col-md-auto">
+                        <button class="btn btn-primary w-100" type="submit" id="button-search">
+                            <i class="fas fa-search me-1"></i> Ara
+                        </button>
+                    </div>
                 </div>
-
+            </form>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col" th:each="movie : ${movies}" th:if="${movie.type == T(com.example.webproje.enums.Type).MOVIE}">
+            <div class="card h-100 movie-card">
+                <div class="card-img-container">
+                    <img th:if="${movie.imageBase64}" th:src="'data:image/png;base64,' + ${movie.imageBase64}" class="card-img-top" th:alt="${movie.title}"/>
+                    <div th:unless="${movie.imageBase64}" class="placeholder-icon">
+                        <i class="fas fa-image"></i>
+                    </div>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${movie.title}"></h5>
-                    <p class="card-text" th:text="${#strings.abbreviate(movie.description, 150)}"></p> <p class="card-text"><strong>Tür:</strong> <span th:text="${movie.genre}"></span></p>
-                    <p class="card-text"><strong>Çıkış Tarihi:</strong> <span th:text="${movie.releaseDate}"></span></p>
-                    <p class="card-text"><strong>Ortalama Puan:</strong> <span th:text="${#numbers.formatDecimal(movie.avgRate, 0, 2)}"></span></p>
+                    <h5 class="card-title" th:text="${movie.title}">Film Başlığı</h5>
+                    <p class="card-text" th:text="${#strings.abbreviate(movie.description, 120)}">Film açıklaması...</p>
+                    <p class="card-text"><strong>Tür:</strong> <span th:text="${movie.genre}">Tür</span></p>
+                    <p class="card-text"><strong>Çıkış Tarihi:</strong> <span th:text="${movie.releaseDate}">YYYY-MM-DD</span></p>
 
-                    <div th:if="${userId != null}"> <div th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
-                        <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
-                            <div th:if="${userRate != null}">
-                                <p class="card-text"><strong>Puanınız:</strong> <span th:text="${userRate.score}"></span></p>
-                                <p class="card-text"><strong>Yorumunuz:</strong> <span th:text="${userRate.comment}"></span></p>
-                            </div>
-                            <div th:unless="${userRate != null || userRole == 'ADMIN'}" >
-                                <p class="card-text"><em>Henüz bu filmi puanlamadınız.</em></p>
+                    <div class="avg-rating mb-2">
+                          <span class="badge bg-warning text-dark">
+                              <i class="fas fa-star me-1"></i>Ort: <span th:text="${#numbers.formatDecimal(movie.avgRate, 1, 1)}"></span>
+                          </span>
+                    </div>
+
+                    <div class="rating-section" th:if="${userId != null}">
+                        <div th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
+                            <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
+                                <div th:if="${userRate != null}" class="user-rating">
+                                    <p class="card-text mb-1"><strong>Puanınız:</strong>
+                                        <span class="badge bg-primary"><i class="fas fa-star me-1"></i><span th:text="${userRate.score}"></span></span>
+                                    </p>
+                                    <p class="card-text mb-0"><strong>Yorumunuz:</strong> <span th:text="${userRate.comment}">Yorum yok</span></p>
+                                </div>
+                                <div th:unless="${userRate != null or userRole == 'ADMIN'}" >
+                                    <p class="card-text text-muted fst-italic small mt-2"><em>Henüz bu filmi puanlamadınız.</em></p>
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <div th:unless="${userId != null}" class="rating-section">
+                        <p class="card-text text-muted fst-italic small mt-2"><em>Puanlama yapmak ve puanınızı görmek için giriş yapın.</em></p>
                     </div>
-                    <div th:unless="${userId != null}"> <p class="card-text"><em>Puanınızı görmek için giriş yapın.</em></p>
-                    </div>
-                    <div class="mt-auto"></div>
-                </div>
 
-                <div class="card-footer text-center">
+                </div>
+                <div class="card-footer">
                     <div th:if="${userRole == 'ADMIN'}">
-                        <a th:href="@{/movies/update/{id}(id=${movie.id})}" class="btn btn-info btn-sm">Güncelle</a>
-                        <a th:href="@{/movies/delete/{id}(id=${movie.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Filmi silmek istediğinize emin misiniz?')">Sil</a>
+                        <a th:href="@{/movies/update/{id}(id=${movie.id})}" class="btn btn-info btn-sm">
+                            <i class="fas fa-edit me-1"></i>Güncelle
+                        </a>
+                        <a th:href="@{/movies/delete/{id}(id=${movie.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Bu filmi silmek istediğinize emin misiniz?');">
+                            <i class="fas fa-trash-alt me-1"></i>Sil
+                        </a>
                     </div>
-                    <div th:if="${userRole == 'USER'}">
-                        <div th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
-                            <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
-                                <a th:if="${userRate == null}" th:href="@{/movie/rate/{id}(id=${movie.id})}" class="btn btn-warning btn-sm">Puanla</a>
-                                <a th:if="${userRate != null}" th:href="@{/movie/rate/update/{id}(id=${userRate.id})}" class="btn btn-info btn-sm">Puanı Güncelle</a>
-                                <a th:if="${userRate != null}" th:href="@{/movie/rate/delete/{id}(id=${userRate.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Puanı silmek istediğinize emin misiniz?')">Puanı Sil</a>
-                            </div>
+                    <div th:if="${userRole == 'USER'}" th:with="filteredRates=${rates.?[movie.id == #vars.movie.id and user.id == #vars.userId]}">
+                        <div th:with="userRate=${!#lists.isEmpty(filteredRates) ? filteredRates[0] : null}">
+                            <a th:if="${userRate == null}" th:href="@{/movie/rate/{id}(id=${movie.id})}" class="btn btn-warning btn-sm">
+                                <i class="fas fa-star me-1"></i>Puanla
+                            </a>
+                            <a th:if="${userRate != null}" th:href="@{/movie/rate/update/{id}(id=${userRate.id})}" class="btn btn-info btn-sm">
+                                <i class="fas fa-edit me-1"></i>Puanı Güncelle
+                            </a>
+                            <a th:if="${userRate != null}" th:href="@{/movie/rate/delete/{id}(id=${userRate.id})}" class="btn btn-danger btn-sm" onclick="return confirm('Bu filme verdiğiniz puanı silmek istediğinize emin misiniz?');">
+                                <i class="fas fa-trash-alt me-1"></i>Puanı Sil
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div th:if="${#lists.isEmpty(movies)}" class="col-12">
+            <div class="alert alert-info text-center" role="alert">
+                 <span th:if="${(titleSearchQuery == null or titleSearchQuery.isEmpty()) and (genreSearchQuery == null or genreSearchQuery.isEmpty())}">
+                     Gösterilecek film bulunamadı.
+                 </span>
+                <span th:unless="${(titleSearchQuery == null or titleSearchQuery.isEmpty()) and (genreSearchQuery == null or genreSearchQuery.isEmpty())}">
+                     Aranan kriterlere uygun film bulunamadı.
+                     <span th:if="${titleSearchQuery != null and !titleSearchQuery.isEmpty()}"> (Ad: '<strong th:text="${titleSearchQuery}"></strong>')</span>
+                     <span th:if="${genreSearchQuery != null and !genreSearchQuery.isEmpty()}"> (Tür: '<strong th:text="${genreSearchQuery}"></strong>')</span>
+                 </span>
+            </div>
+        </div>
     </div>
 </div>
+
+<footer class="footer text-center">
+    <div class="container">
+        <span>© <span th:text="${#dates.year(#dates.createNow())}">2025</span> Film ve Dizi Puanlama Sistemi. Tüm hakları saklıdır.</span>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

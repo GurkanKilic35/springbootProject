@@ -12,9 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Base64;
 import java.util.List;
 
@@ -29,9 +27,11 @@ public class SeriesController {
 
 
     @GetMapping
-    public String getAllSeries(Model model, @AuthenticationPrincipal UserDetails userDetails) {
-        List<MovieDTO> movies = movieService.findAllMovie();
-        List<RateDTO> rates = rateService.findAllRate(); // Fetch all rates
+    public String getAllSeries(Model model, @AuthenticationPrincipal UserDetails userDetails,
+                               @RequestParam(value = "titleSearch", required = false) String titleSearch,
+                               @RequestParam(value = "genreSearch", required = false) String genreSearch) {
+        List<MovieDTO> movies = movieService.findMovies(titleSearch, genreSearch);
+        List<RateDTO> rates = rateService.findAllRate();
 
         Long userId = null;
         if (userDetails != null) {
@@ -41,22 +41,19 @@ public class SeriesController {
             model.addAttribute("username", user.getUsername());
             model.addAttribute("userRole", user.getRole().name());
 
-            // This list is not strictly necessary for the template logic requested,
-            // but we'll keep it as it was in your original code.
             List<MovieDTO> moviesNotRatedByUser = movies;
             if (userId != null) {
                 moviesNotRatedByUser = movies.stream()
                         .filter(movie -> rates.stream()
-                                .noneMatch(rate -> rate.getMovie().getId()==movie.getId()// Use .equals for Long comparison
-                                        && rate.getUser().getId()==user.getId())) // Use .equals for Long comparison
-                        .toList(); // Java 16+, use collect(Collectors.toList()) for Java 8
+                                .noneMatch(rate -> rate.getMovie().getId()==movie.getId()
+                                        && rate.getUser().getId()==user.getId()))
+                        .toList();
             }
             model.addAttribute("moviesNotRatedByUser", moviesNotRatedByUser);
 
         } else {
             model.addAttribute("username", "Guest");
             model.addAttribute("userRole", "GUEST");
-            // If guest, no userId is set, which is handled in template
         }
 
         movies.forEach(movie -> {
@@ -66,9 +63,11 @@ public class SeriesController {
             }
         });
 
-        // Pass all rates to the template
         model.addAttribute("rates", rates);
         model.addAttribute("movies", movies);
+
+        model.addAttribute("titleSearchQuery", titleSearch);
+        model.addAttribute("genreSearchQuery", genreSearch);
 
 
         return "series";

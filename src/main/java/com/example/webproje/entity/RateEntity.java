@@ -41,7 +41,7 @@ public class RateEntity {
     private String comment;
 
     @Version
-    private Long version= 0L;;
+    private Long version= 0L;
 
     public RateEntity(long id, UserEntity user, MovieEntity movie, int score, LocalDateTime ratingDate, String comment) {
         this.id = id;

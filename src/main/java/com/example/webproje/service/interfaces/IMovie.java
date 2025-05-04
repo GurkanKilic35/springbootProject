@@ -10,5 +10,6 @@ public interface IMovie {
     List<MovieDTO> findAllMovie();
     Optional<MovieDTO> findMovieById(Long id);
     MovieDTO updateMovie(MovieDTO movieDTO);
+    List<MovieDTO> findMovies(String title, String genre);
     void deleteMovie(Long id);
 }

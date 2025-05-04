@@ -2,55 +2,172 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title th:text="${movie.title}">Film Puanlama</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${movie.title} + ' Puanla - Film & Dizi Puanlama Sistemi'">Film Puanlama</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+         /* Ana içerik alanı */
+        .main-content {
+            flex-grow: 1;
+            padding-top: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .page-title {
+            color: #343a40;
+            font-weight: 700;
+            margin-bottom: 2.5rem;
+            text-align: center;
+        }
+
+        .rating-card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #ffffff;
+            padding: 0.5rem;
+        }
+
+        .rating-card .form-label {
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .rating-card .form-control {
+            border-radius: 5px;
+        }
+
+        .btn-primary {
+             background-color: #0d6efd;
+             border-color: #0d6efd;
+         }
+         .btn-primary:hover {
+             background-color: #0b5ed7;
+             border-color: #0a58ca;
+         }
+         .btn-secondary {
+             background-color: #6c757d;
+             border-color: #6c757d;
+         }
+         .btn-secondary:hover {
+             background-color: #5c636a;
+             border-color: #565e64;
+         }
+
+
+        .footer {
+            background-color: #212529;
+            color: rgba(255, 255, 255, 0.7);
+            padding: 1.5rem 0;
+            margin-top: auto;
+            text-align: center;
+        }
+    </style>
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="/home">Film & Dizi Puanlama</a>
-        <div class="navbar-nav ms-auto">
-            <span class="navbar-text me-3">Hoşgeldiniz, <span th:text="${username}">Guest</span></span>
-            <div th:if="${userId != null}">
-                <a class="btn btn-outline-light" href="/logout">Çıkış Yap</a>
+        <a class="navbar-brand" href="/home">
+            <i class="fas fa-film me-2"></i>Film & Dizi Puanlama
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav me-auto" th:if="${userRole == 'ADMIN'}">
+                <a href="/movies/add" class="btn btn-success btn-sm ms-lg-3 mt-2 mt-lg-0">
+                    <i class="fas fa-plus me-1"></i>Yeni Film Ekle
+                </a>
             </div>
-            <div th:unless="${userId != null}">
-                <a class="btn btn-outline-light" href="/login">Giriş Yap</a>
+
+            <div class="navbar-nav ms-auto align-items-center">
+                 <span th:if="${username}" class="navbar-text me-3">
+                    Hoşgeldiniz, <span th:text="${username}">Kullanıcı</span>!
+                </span>
+                <span th:unless="${username}" class="navbar-text me-3">
+                    Hoşgeldiniz, Misafir!
+                </span>
+
+                <div th:if="${userId != null}">
+                    <a class="btn btn-outline-light btn-sm" href="/logout">
+                        <i class="fas fa-sign-out-alt me-1"></i> Çıkış Yap
+                    </a>
+                </div>
+                <div th:unless="${userId != null}" class="d-flex"> <a class="btn btn-outline-light btn-sm me-2" href="/login">
+                    <i class="fas fa-sign-in-alt me-1"></i> Giriş Yap
+                </a>
+                    <a class="btn btn-warning btn-sm" href="/register">
+                        <i class="fas fa-user-plus me-1"></i> Kayıt Ol
+                    </a>
+                </div>
             </div>
         </div>
     </div>
 </nav>
 
-<div class="container">
-    <h1 class="mb-4 text-center" th:text="${movie.title} + ' Puanla'"></h1>
+<div class="container main-content">
+    <h1 class="page-title" th:text="${movie.title} + ' Puanla'">Film Puanla</h1>
+
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
+        <div class="col-md-8 col-lg-6">
+            <div class="card rating-card">
+                <div class="card-body p-lg-4">
                     <form th:action="@{/movie/rate/{id}(id=${movie.id})}" method="post" th:object="${rate}">
-                        <input type="hidden" name="movie.id" th:value="${movie.id}" />
+                    <input type="hidden" name="movie.id" th:value="${movie.id}" />
 
-                        <div class="mb-3">
-                            <label for="score" class="form-label">Puan (1-10)</label>
-                            <input type="number" id="score" name="score" class="form-control" min="1" max="10" required>
-                        </div>
+                    <div class="mb-3">
+                        <label for="score" class="form-label">
+                            <i class="fas fa-star me-1 text-warning"></i>Puanınız (1-10 arası)
+                        </label>
+                        <input type="number" id="score" name="score" class="form-control form-control-lg" min="1" max="10" required placeholder="1 ile 10 arasında bir puan girin">
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('score')}" th:errors="*{score}">Puan hatası</div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label for="comment" class="form-label">Yorum (isteğe bağlı)</label>
-                            <textarea id="comment" name="comment" class="form-control" rows="4"></textarea>
-                        </div>
+                    <div class="mb-4">
+                        <label for="comment" class="form-label">
+                            <i class="fas fa-comment me-1 text-secondary"></i>Yorumunuz (isteğe bağlı)
+                        </label>
+                        <textarea id="comment" name="comment" class="form-control" rows="4" placeholder="Film hakkındaki düşünceleriniz..."></textarea>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}">Yorum hatası</div>
+                    </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-primary">Puanla</button>
-                            <a th:href="@{/movies}" class="btn btn-secondary">İptal</a>
-                        </div>
-                    </form>
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <a th:href="@{/movies}" class="btn btn-secondary order-md-1">
+                            <i class="fas fa-times me-1"></i>İptal
+                        </a>
+                        <button type="submit" class="btn btn-warning order-md-2"> <i class="fas fa-check me-1"></i>Puanla
+                        </button>
+                    </div>
+                </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<footer class="footer text-center">
+    <div class="container">
+        <span>© <span th:text="${#dates.year(#dates.createNow())}">2025</span> Film ve Dizi Puanlama Sistemi. Tüm hakları saklıdır.</span>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
