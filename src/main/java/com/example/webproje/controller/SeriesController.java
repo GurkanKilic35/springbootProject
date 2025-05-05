@@ -18,7 +18,7 @@ import java.util.List;
 
 @Controller
 @AllArgsConstructor
-@RequestMapping("/series")
+@RequestMapping("/series") // Bu controller'daki tüm sayfalar "/series" ile başlar
 public class SeriesController {
 
     private final MovieService movieService;
@@ -26,13 +26,16 @@ public class SeriesController {
     private final RateService rateService;
 
 
+    // Tüm dizileri (veya arama sonuçlarını) listeler
     @GetMapping
     public String getAllSeries(Model model, @AuthenticationPrincipal UserDetails userDetails,
                                @RequestParam(value = "titleSearch", required = false) String titleSearch,
                                @RequestParam(value = "genreSearch", required = false) String genreSearch) {
+        // Filmleri (dizileri) ve puanlamaları al
         List<MovieDTO> movies = movieService.findMovies(titleSearch, genreSearch);
         List<RateDTO> rates = rateService.findAllRate();
 
+        // Kullanıcı giriş yapmışsa bilgilerini ve henüz puanlamadığı dizileri model'e ekle
         Long userId = null;
         if (userDetails != null) {
             UserEntity user = userService.findByUsername(userDetails.getUsername());
@@ -56,6 +59,7 @@ public class SeriesController {
             model.addAttribute("userRole", "GUEST");
         }
 
+        // Dizi resimlerini Base64'e dönüştür
         movies.forEach(movie -> {
             if (movie.getImage() != null) {
                 String base64Image = Base64.getEncoder().encodeToString(movie.getImage());
@@ -63,14 +67,14 @@ public class SeriesController {
             }
         });
 
+        // Modelleri view'a ekle
         model.addAttribute("rates", rates);
         model.addAttribute("movies", movies);
 
         model.addAttribute("titleSearchQuery", titleSearch);
         model.addAttribute("genreSearchQuery", genreSearch);
 
-
-        return "series";
+        return "series"; // series.html
     }
 
 }

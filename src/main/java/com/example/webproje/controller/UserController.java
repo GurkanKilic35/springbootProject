@@ -17,22 +17,25 @@ public class UserController {
         this.userService = userService;
     }
 
+    // Kayıt sayfasını göster
     @GetMapping("/register")
     public String showRegisterPage() {
         return "register";
     }
 
+    // Kullanıcı kaydı yap
     @PostMapping("/register")
     public String registerUser(@ModelAttribute UserDTO userDTO, Model model) {
         try {
-            UserDTO registeredUser = userService.registerUser(userDTO);
-            return "redirect:/login";
+            userService.registerUser(userDTO); // Kullanıcıyı kaydet
+            return "redirect:/login"; // Başarılıysa login'e yönlendir
         } catch (Exception e) {
             model.addAttribute("error", "Registration failed. Please try again.");
-            return "register";
+            return "register"; // Kayıt sayfasını tekrar göster
         }
     }
 
+    // Giriş sayfasını göster
     @GetMapping("/login")
     public String showLoginPage(@AuthenticationPrincipal UserDTO user) {
         if (user != null) {

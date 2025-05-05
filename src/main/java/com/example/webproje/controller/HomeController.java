@@ -12,22 +12,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 @AllArgsConstructor
 public class HomeController {
+
     private final UserService userService;
 
+    // Ana sayfa
     @GetMapping("/home")
     public String home(Model model, @AuthenticationPrincipal UserDetails userDetails){
-        Long userId = null;
+        // Kullanıcı giriş yapmışsa bilgilerini model'e ekle
         if (userDetails != null) {
             UserEntity user = userService.findByUsername(userDetails.getUsername());
-            userId = user.getId();
             model.addAttribute("userId", user.getId());
             model.addAttribute("username", user.getUsername());
             model.addAttribute("userRole", user.getRole().name());
         } else {
+            // Kullanıcı giriş yapmamışsa varsayılan bilgileri ekle
             model.addAttribute("username", "Guest");
             model.addAttribute("userRole", "GUEST");
         }
-        return "home";
+        return "home"; // home.html
     }
 
 }

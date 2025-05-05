@@ -1,6 +1,5 @@
 package com.example.webproje.repository;
 
-import com.example.webproje.dto.MovieDTO;
 import com.example.webproje.entity.MovieEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 

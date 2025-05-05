@@ -19,8 +19,6 @@ import java.util.stream.Collectors;
 public class RateService implements IRate {
     RateRepo rateRepo;
 
-
-
     @Override
     public RateDTO addRate(RateDTO rateDTO) {
         try {
